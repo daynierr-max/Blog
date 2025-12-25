@@ -1,21 +1,49 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AUTHOR_INFO } from '../constants';
+import { generateInspirationalImage } from '../services/geminiService';
+
+const FALLBACK_PROFILE = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1000";
 
 const About: React.FC = () => {
+  const [profileImage, setProfileImage] = useState<string>(AUTHOR_INFO.image);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    const fetchPortrait = async () => {
+      setIsGenerating(true);
+      try {
+        const img = await generateInspirationalImage("Retrato artístico de una mujer intelectual, escritora, luz de estudio suave, elegancia académica");
+        if (img) setProfileImage(img);
+      } catch (e) {
+        console.error("No se pudo generar el retrato artístico", e);
+      }
+      setIsGenerating(false);
+    };
+    fetchPortrait();
+  }, []);
+
   return (
     <div className="bg-[#fdfcf8] min-h-screen py-24 px-6">
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center mb-24 reveal">
           <div className="relative group">
-            <div className="aspect-square overflow-hidden rounded-sm shadow-2xl bg-[#f4f2ee]">
+            <div className={`aspect-square overflow-hidden rounded-sm shadow-2xl bg-[#f4f2ee] transition-all duration-1000 ${isGenerating ? 'opacity-50 blur-sm' : 'opacity-100'}`}>
               <img 
-                src={AUTHOR_INFO.image} 
+                src={profileImage} 
                 alt={AUTHOR_INFO.name} 
-                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" 
+                className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = FALLBACK_PROFILE;
+                }}
               />
             </div>
             <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[#a67c52] -z-10 opacity-20"></div>
+            {isGenerating && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-[#a67c52] border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
           </div>
           
           <div className="space-y-8">
@@ -24,7 +52,7 @@ const About: React.FC = () => {
             <p className="text-xl font-classic italic text-[#6b665f] leading-relaxed">
               "{AUTHOR_INFO.bio}"
             </p>
-            <div className="pt-4">
+            <div className="pt-4 flex flex-wrap gap-4">
               <a 
                 href={AUTHOR_INFO.linkedin} 
                 target="_blank" 

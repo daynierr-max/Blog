@@ -2,10 +2,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ReflectionResponse } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
-
 export const generateAIReflection = async (concept: string): Promise<ReflectionResponse | null> => {
   try {
+    // Instanciación dinámica para asegurar el acceso a la API_KEY en tiempo de ejecución
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Proporciona una reflexión profunda sobre el concepto: "${concept}". La respuesta debe estar en español y seguir un tono elegante, literario y melancólico pero esperanzador.`,
@@ -44,16 +44,15 @@ export const generateAIReflection = async (concept: string): Promise<ReflectionR
 
 export const generateInspirationalImage = async (prompt: string): Promise<string | null> => {
   try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
         parts: [
           {
-            text: `An elegant, minimalist, and philosophical artistic representation of: "${prompt}". 
-                   Cinematic lighting, high aesthetic, soft neutral colors, 
-                   fine textures of stone, paper, or celestial dust. 
-                   Avoid text, realistic faces, or cluttered compositions. 
-                   Focus on light and shadow. 16:9 aspect ratio.`,
+            text: `An abstract, elegant, minimalist fine art photography representation of: "${prompt}". 
+                   Cinematic lighting, high aesthetic, muted colors, soft textures. 
+                   Avoid literal objects or text. Focus on light and mood.`,
           },
         ],
       },
@@ -64,9 +63,11 @@ export const generateInspirationalImage = async (prompt: string): Promise<string
       },
     });
 
-    for (const part of response.candidates[0].content.parts) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
+    if (response.candidates && response.candidates[0].content.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          return `data:image/png;base64,${part.inlineData.data}`;
+        }
       }
     }
     return null;

@@ -6,7 +6,7 @@ export const AUTHOR_INFO = {
   role: "Estratega de Pensamiento & Liderazgo",
   bio: "Exploro la intersección entre la estrategia profesional y la profundidad humana. Mi misión es destilar ideas que resistan al tiempo para líderes y mentes curiosas.",
   linkedin: "https://www.linkedin.com/in/marlen-balboa-6a874834a/",
-  image: "https://picsum.photos/seed/marlen/400/400" // Placeholder para foto profesional
+  image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1000" 
 };
 
 export const MOCK_POSTS: Post[] = [

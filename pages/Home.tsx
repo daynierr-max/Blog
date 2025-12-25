@@ -4,14 +4,25 @@ import { MOCK_POSTS } from '../constants';
 import PostCard from '../components/PostCard';
 import { generateInspirationalImage } from '../services/geminiService';
 
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1490814525860-594e82bfd34a?auto=format&fit=crop&q=80&w=2000";
+
 const Home: React.FC = () => {
   const [heroImage, setHeroImage] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerateImage = async () => {
     setIsGenerating(true);
-    const img = await generateInspirationalImage("Ideas que resisten al tiempo, sabiduría antigua, luz suave y libros");
-    if (img) setHeroImage(img);
+    try {
+      const img = await generateInspirationalImage("Sabiduría atemporal, luz etérea, minimalismo artístico");
+      if (img) {
+        setHeroImage(img);
+      } else if (!heroImage) {
+        setHeroImage(FALLBACK_IMAGE);
+      }
+    } catch (e) {
+      console.error("Fallo en la generación de imagen", e);
+      if (!heroImage) setHeroImage(FALLBACK_IMAGE);
+    }
     setIsGenerating(false);
   };
 
@@ -22,30 +33,33 @@ const Home: React.FC = () => {
   return (
     <div className="bg-[#fdfcf8]">
       {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden px-6 bg-[#2d2a26]">
+      <section className="relative h-[90vh] flex items-center justify-center overflow-hidden px-6 bg-[#1a1917]">
         <div className="absolute inset-0 transition-opacity duration-1000">
           {heroImage ? (
             <>
               <img 
                 src={heroImage} 
-                className="w-full h-full object-cover opacity-40 scale-110" 
+                className={`w-full h-full object-cover transition-all duration-1000 ${isGenerating ? 'opacity-20 blur-sm scale-100' : 'opacity-40 scale-105'}`} 
                 alt="Visión Atemporal" 
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#fdfcf8] via-transparent to-[#2d2a26]/50"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#fdfcf8] via-transparent to-[#1a1917]/60"></div>
             </>
           ) : (
-            <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:60px_60px]"></div>
+            <div className="absolute inset-0 bg-[#2d2a26] opacity-10 animate-pulse"></div>
           )}
         </div>
 
         <div className="text-center max-w-4xl z-10 fade-in-load">
-          <span className="text-[10px] uppercase tracking-[0.6em] text-[#a67c52] font-bold mb-8 block">
+          <span className="text-[10px] uppercase tracking-[0.6em] text-[#a67c52] font-bold mb-8 block drop-shadow-sm">
             Un Archivo para la Mente Inquieta
           </span>
           <h1 className="text-5xl md:text-9xl font-serif font-light text-white mb-8 leading-[1.1] italic">
             Ideas que resisten al <span className="font-normal not-italic text-[#a67c52]">tiempo</span>.
           </h1>
-          <p className="text-xl md:text-2xl text-stone-300 font-classic max-w-3xl mx-auto leading-relaxed mb-12 opacity-80">
+          <p className="text-xl md:text-2xl text-stone-200 font-classic max-w-3xl mx-auto leading-relaxed mb-12 opacity-90 drop-shadow-md">
             Explora las intersecciones entre la filosofía clásica y el ruido del mundo moderno. Un refugio para leer, pensar y existir.
           </p>
           
@@ -53,11 +67,11 @@ const Home: React.FC = () => {
             <button 
               onClick={handleGenerateImage}
               disabled={isGenerating}
-              className="px-10 py-4 bg-transparent border border-white/30 text-white text-[10px] uppercase tracking-widest font-bold hover:bg-white/10 transition-all rounded-full"
+              className="px-10 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white text-[10px] uppercase tracking-widest font-bold hover:bg-white/20 transition-all rounded-full disabled:opacity-50"
             >
               {isGenerating ? 'Destilando Esencia...' : 'Reimaginar Portada'}
             </button>
-            <a href="#/lab" className="px-10 py-4 bg-[#a67c52] text-white text-[10px] uppercase tracking-widest font-bold hover:bg-[#8e6a46] transition-all rounded-full shadow-lg shadow-[#a67c52]/20">
+            <a href="#/lab" className="px-10 py-4 bg-[#a67c52] text-white text-[10px] uppercase tracking-widest font-bold hover:bg-[#8e6a46] transition-all rounded-full shadow-lg shadow-[#a67c52]/30">
               Laboratorio de Ideas
             </a>
           </div>
@@ -84,7 +98,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Philosophy Quote */}
+      {/* Philosophy Quote Section */}
       <section className="py-40 bg-[#f4f2ee] border-y border-[#e5e1da]">
         <div className="max-w-3xl mx-auto text-center px-6 reveal">
           <div className="mb-12 text-[#a67c52]">
